@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍽️ Warteg Digital</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#84fab0,#8fd3f4);
+    padding:20px;
+}
+
+.container{
+    width:700px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.15);
+}
+
+h1,h2{
+    text-align:center;
+}
+
+.subtitle{
+    text-align:center;
+    color:#666;
+    margin-top:-10px;
+    margin-bottom:20px;
+}
+
+input,select,button{
+    width:100%;
+    padding:10px;
+    margin-top:8px;
+    margin-bottom:10px;
+    box-sizing:border-box;
+}
+
+button{
+    background:#2e7d32;
+    color:white;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+button:hover{
+    background:#1b5e20;
+    transform:scale(1.03);
+}
+
+.box{
+    border-left:5px solid #f30a0a;
+    background:rgb(56, 118, 122);
+    padding:15px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+#halamanQris{
+    display:none;
+    text-align:center;
+}
+
+img{
+    border-radius:10px;
+}
+
+#totalBayar{
+    color:red;
+    font-size:28px;
+    font-weight:bold;
+}
+
+footer{
+    text-align:center;
+    color:#666;
+    margin-top:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container" id="halamanKasir">
+
+<h1>🍽️ WARTEG 7 METER </h1>
+<H2>PEMBAYARAN DIGITAL</H2> 
+
+<p class="subtitle">
+Kasir Berbasis FIFO & QRIS
+</p>
+
+<label>👤 Nama Pelanggan</label>
+
+<input type="text" id="namaPelanggan">
+
+<label>🍜 Pilih Menu</label>
+<select id="menu">
+    <option value="15000">🍚 Nasi Goreng Sultan</option>
+    <option value="12000">🍗 Ayam Geprek Viral</option>
+    <option value="10000">🍜 Mie Goreng Anak Kos</option>
+    <option value="5000">🧋 Es Teh Jumbo</option>
+</select>
+
+<label>🔢 Jumlah</label>
+<input type="number" id="jumlah">
+
+<button onclick="tambahAntrian()">
+➕ Tambah ke Antrean
+</button>
+
+<h2>📋 Antrean Pelanggan (FIFO)</h2>
+
+<div class="box" id="antrianList">
+Belum ada antrean
+</div>
+
+<button onclick="layaniPelanggan()">
+🚀 Layani Pelanggan
+</button>
+
+<h2>👨‍🍳 Sedang Dilayani</h2>
+
+<div class="box" id="pelangganAktif">
+Belum ada pelanggan
+</div>
+
+<h2>🧾 Struk Pembelian</h2>
+
+<div class="box" id="struk">
+Belum ada transaksi
+</div>
+
+<button onclick="bukaQris()">
+💳 Bayar dengan QRIS
+</button>
+
+<h2>📈 Riwayat Transaksi</h2>
+
+<div class="box" id="riwayat">
+Belum ada transaksi
+</div>
+
+</div>
+
+<div class="container" id="halamanQris">
+
+<h1>💳 Pembayaran QRIS</h1>
+
+<!-- Ganti nama file jika berbeda -->
+<img src="qris.jpeg" width="300">
+
+<h2 id="totalBayar"></h2>
+
+<button onclick="selesaiPembayaran()">
+✅ Pembayaran Selesai
+</button>
+
+</div>
+
+<footer>
+✨ Warteg Digital - FIFO & QRIS ✨
+</footer>
+
+<script>
+
+let antrian = [];
+let transaksiAktif = null;
+let riwayat = [];
+
+function tambahAntrian(){
+
+    let nama =
+    document.getElementById("namaPelanggan").value;
+
+    let menuSelect =
+    document.getElementById("menu");
+
+    let menu =
+    menuSelect.options[
+    menuSelect.selectedIndex].text;
+
+    let harga =
+    parseInt(menuSelect.value);
+
+    let jumlah =
+    parseInt(
+    document.getElementById("jumlah").value
+    );
+
+    if(
+        nama === "" ||
+        isNaN(jumlah) ||
+        jumlah <= 0
+    ){
+        alert("Lengkapi data dengan benar!");
+        return;
+    }
+
+    let total = harga * jumlah;
+
+    antrian.push({
+        nama,
+        menu,
+        harga,
+        jumlah,
+        total
+    });
+
+    tampilkanAntrian();
+
+    document.getElementById(
+    "namaPelanggan").value = "";
+
+    document.getElementById(
+    "jumlah").value = "";
+}
+
+function tampilkanAntrian(){
+
+    let html = "";
+
+    for(let i=0;i<antrian.length;i++){
+
+        html +=
+        (i+1) + ". " +
+        antrian[i].nama +
+        " - " +
+        antrian[i].menu +
+        "<br>";
+    }
+
+    document.getElementById(
+    "antrianList").innerHTML =
+    html || "Belum ada antrean";
+}
+
+function layaniPelanggan(){
+
+    if(antrian.length === 0){
+
+        alert("Antrean kosong!");
+        return;
+    }
+
+    transaksiAktif =
+    antrian.shift();
+
+    tampilkanAntrian();
+
+    document.getElementById(
+    "pelangganAktif").innerHTML =
+
+    transaksiAktif.nama;
+
+    document.getElementById(
+    "struk").innerHTML =
+
+    "<b>=== STRUK PEMBELIAN ===</b><br><br>" +
+
+    "Nama : " +
+    transaksiAktif.nama +
+    "<br>" +
+
+    "Menu : " +
+    transaksiAktif.menu +
+    "<br>" +
+
+    "Harga : Rp " +
+    transaksiAktif.harga
+    .toLocaleString("id-ID") +
+    "<br>" +
+
+    "Jumlah : " +
+    transaksiAktif.jumlah +
+    "<br>" +
+
+    "Total : Rp " +
+    transaksiAktif.total
+    .toLocaleString("id-ID");
+}
+
+function bukaQris(){
+
+    if(transaksiAktif === null){
+
+        alert(
+        "Layani pelanggan terlebih dahulu!"
+        );
+
+        return;
+    }
+
+    document.getElementById(
+    "halamanKasir").style.display =
+    "none";
+
+    document.getElementById(
+    "halamanQris").style.display =
+    "block";
+
+    document.getElementById(
+    "totalBayar").innerHTML =
+
+    "Total Bayar : Rp " +
+
+    transaksiAktif.total
+    .toLocaleString("id-ID");
+}
+
+function selesaiPembayaran(){
+
+    riwayat.push(transaksiAktif);
+
+    tampilkanRiwayat();
+
+    alert(
+    "🎉 Pembayaran Berhasil!\nTerima kasih sudah berbelanja di Warteg Digital"
+    );
+
+    transaksiAktif = null;
+
+    document.getElementById(
+    "halamanKasir").style.display =
+    "block";
+
+    document.getElementById(
+    "halamanQris").style.display =
+    "none";
+
+    document.getElementById(
+    "pelangganAktif").innerHTML =
+    "Belum ada pelanggan";
+
+    document.getElementById(
+    "struk").innerHTML =
+    "Belum ada transaksi";
+}
+
+function tampilkanRiwayat(){
+
+    let html = "";
+
+    for(let i=0;i<riwayat.length;i++){
+
+        html +=
+
+        (i+1) + ". " +
+
+        riwayat[i].nama +
+
+        " | " +
+
+        riwayat[i].menu +
+
+        " | Rp " +
+
+        riwayat[i].total
+        .toLocaleString("id-ID")
+
+        + "<br>";
+    }
+
+    document.getElementById(
+    "riwayat").innerHTML =
+    html;
+}
+
+</script>
+
+</body>
+</html>
